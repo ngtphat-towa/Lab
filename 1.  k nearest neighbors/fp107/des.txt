@@ -1,0 +1,5 @@
+data size: 2666
+num_class: 107 (0..106)
+[INFO] splitted train and test data...
+[INFO] train data  : (2132, 768)
+[INFO] test data   : (534, 768)
