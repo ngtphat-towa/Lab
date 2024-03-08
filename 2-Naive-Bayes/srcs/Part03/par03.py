@@ -16,17 +16,7 @@ def load_data(filename):
     return X, y
 
 
-def save_combined_plot(accuracies, confusion, dataset_name):
-    plt.figure(figsize=(16, 6))
-
-    plt.subplot(1, 2, 1)
-    plt.plot(accuracies, marker="o", linestyle="-")
-    plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
-    plt.title(f"Training Accuracy over Epochs - {dataset_name}")
-    plt.grid(True)
-
-    plt.subplot(1, 2, 2)
+def export_confusion_matrix(confusion, dataset_name):
     sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues", cbar=False)
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
@@ -37,6 +27,11 @@ def save_combined_plot(accuracies, confusion, dataset_name):
     plt.close()
 
 
+def print_confusion_matrix(confusion):
+    for row in confusion:
+        print(row)
+
+
 def save_results_to_file(accuracy, confusion, dataset_name):
     with open("results.txt", "a") as f:
         f.write(f"Dataset: {dataset_name}\n")
@@ -45,7 +40,17 @@ def save_results_to_file(accuracy, confusion, dataset_name):
         np.savetxt(f, confusion, fmt="%d")
 
 
-def main(trainset_filename, testset_filename, dataset_name):
+def test_model(clf, X_test, y_test):
+
+    y_pred = clf.predict(X_test)
+
+    # Calculate accuracy
+    accuracy = accuracy_score(y_test, y_pred)
+
+    return accuracy, y_pred
+
+
+def main(trainset_filename, testset_filename, dataset_name=""):
     # Load train and test data
     X_train, y_train = load_data(trainset_filename)
     X_test, y_test = load_data(testset_filename)
@@ -54,33 +59,22 @@ def main(trainset_filename, testset_filename, dataset_name):
     clf = GaussianNB()
 
     # Train classifier
-    accuracies = []
-    for epoch in range(1, 11):  # Training for 10 epochs
-        clf.fit(X_train, y_train)
+    clf.fit(X_train, y_train)
 
-        # Predict on train set
-        y_train_pred = clf.predict(X_train)
+    # Predict on test
+    train_accuracy, _ = test_model(clf, X_train, y_train)
+    accuracy, y_pred = test_model(clf, X_test, y_test)
 
-        # Calculate training accuracy
-        train_accuracy = accuracy_score(y_train, y_train_pred)
-        accuracies.append(train_accuracy)
-
-        print(f"Epoch {epoch}: Training Accuracy: {train_accuracy}")
-
-    # Predict on test set
-    y_pred = clf.predict(X_test)
-
-    # Calculate accuracy
-    accuracy = accuracy_score(y_test, y_pred)
-    print("Final Accuracy on Test Set:", accuracy)
+    print("Train Accuracy:", train_accuracy)
+    print("Test Accuracy:", accuracy)
 
     # Calculate confusion matrix
     confusion = confusion_matrix(y_test, y_pred)
     print("Confusion Matrix:")
-    print(confusion)
+    print_confusion_matrix(confusion)
 
-    # Save combined plot
-    save_combined_plot(accuracies, confusion, dataset_name)
+    # Save into file
+    export_confusion_matrix(confusion, dataset_name)
     save_results_to_file(accuracy, confusion, dataset_name)
 
 
