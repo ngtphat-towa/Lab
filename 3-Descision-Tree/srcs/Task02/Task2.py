@@ -34,6 +34,7 @@ def save_results_to_file(accuracy, confusion, features, dataset_name):
 
 
 def export_confusion_matrix(confusion, accuracy, num_nodes, dataset_name):
+    """Generates and saves a confusion matrix heatmap image."""
     sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues", cbar=False)
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
